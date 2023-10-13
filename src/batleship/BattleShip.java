@@ -14,7 +14,6 @@ import javax.swing.JOptionPane;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.GridBagConstraints;
-import javax.swing.JTextArea;
 import java.awt.Insets;
 
 public class BattleShip extends JFrame {
@@ -42,6 +41,8 @@ public class BattleShip extends JFrame {
 	 * Create the frame.
 	 */
 	public BattleShip() {
+		this.setTitle("BattleShip");
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 600);
 		
@@ -70,6 +71,7 @@ public class BattleShip extends JFrame {
 		contentPane.setLayout(gbl_contentPane);
 		
 		ShipField field1 = new ShipField("CPU");
+		field1.setEnabled(false);
 		GridBagConstraints gbc_field1 = new GridBagConstraints();
 		gbc_field1.insets = new Insets(0, 0, 5, 5);
 		gbc_field1.fill = GridBagConstraints.BOTH;

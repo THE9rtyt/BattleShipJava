@@ -1,14 +1,12 @@
 package batleship;
 
 import javax.swing.JPanel;
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JTextArea;
 
-import java.awt.Cursor;
 import java.awt.Font;
 
 public class HUD extends JPanel {

@@ -1,12 +1,13 @@
 package batleship;
 
 import javax.swing.JPanel;
-import java.awt.GridLayout;
 import java.awt.GridBagLayout;
 import javax.swing.JLabel;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -181,31 +182,40 @@ public class ShipField extends JPanel {
 		
 		//setup field buttons
 		fieldButtons = new JButton[9][9];
-		int i = 0; //loop rows
-		for(JButton[] rowButtons : fieldButtons) {
-			int j = 0; //loop columns
-			for(JButton fieldButton : rowButtons) {
-//				System.out.println(r+c + "row: " + i + "  col: " + j);
-				fieldButton = new JButton("X");
-				fieldButton.setFont(new Font("Arial", Font.PLAIN, 10));
-				fieldButton.setEnabled(false);
-				fieldButton.addActionListener(new ActionListener() {
+		//loop rows
+		for(int i = 0; i < 9; i++) {
+			//loop columns
+			for(int j = 0; j < 9; j++) {
+				// System.out.println(r+c + "row: " + i + "  col: " + j);
+				fieldButtons[i][j] = new JButton("X");
+				fieldButtons[i][j].setFont(new Font("Arial", Font.PLAIN, 10));
+				fieldButtons[i][j].setName(i + " " + j);
+				fieldButtons[i][j].setEnabled(true);
+				fieldButtons[i][j].addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						// TODO Auto-generated method stub
-						
+						System.out.println(((JComponent) e.getSource()).getName());
+						//TODO: complete action listener for clicking field
 					}
 				});
 				
 				GridBagConstraints gbc_fieldbtn = new GridBagConstraints();
 				gbc_fieldbtn.gridy = i+1;
 				gbc_fieldbtn.gridx = j+1;
-				add(fieldButton, gbc_fieldbtn);
-				
-				j++; //next column
+				add(fieldButtons[i][j], gbc_fieldbtn);
 			}
-			i++; //next row
 		}
 
 	}
 
+	//overide set enabled to mass setEnable the buttons
+	@Override
+	public void setEnabled(boolean enabled) {
+		//loop rows
+		for(int i = 0; i < 9; i++) {
+			//loop columns
+			for(int j = 0; j < 9; j++) {
+				fieldButtons[i][j].setEnabled(enabled);
+			}
+		}
+	}
 }
