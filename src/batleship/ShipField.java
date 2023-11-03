@@ -6,13 +6,10 @@ import javax.swing.JLabel;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JButton;
-import javax.swing.JComponent;
-import java.awt.EventQueue;
 import javax.swing.JFrame;
 import java.util.Random;
 import java.awt.Font;
 import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class ShipField extends JPanel {
 	// constants to represent the status of a cell in the field
@@ -23,12 +20,6 @@ public class ShipField extends JPanel {
 
     private JFrame frame;
     private int[][] fieldStatus; // array to keep track of field status
-
-    public ShipField() {
-        initialize();
-        fieldStatus = new int[9][9];
-        generateField(); // initialize the field with ships
-    }
 
     // initialize the frame
     private void initialize() {
@@ -117,7 +108,7 @@ public class ShipField extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public ShipField(String name) {
+	public ShipField(String name, ActionListener listener) {
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -277,6 +268,14 @@ public class ShipField extends JPanel {
 		gbc_lblI.gridy = 9;
 		add(lblI, gbc_lblI);
 		
+    initialize();
+    fieldStatus = new int[9][9];
+		for(int i = 0; i < fieldStatus.length; i++) {
+			for(int j = 0; j < fieldStatus.length; j++) {
+				fieldStatus[i][j] = EMPTY;
+			}
+		}
+		
 		//setup field buttons
 		fieldButtons = new JButton[9][9];
 		//loop rows
@@ -288,12 +287,7 @@ public class ShipField extends JPanel {
 				fieldButtons[i][j].setFont(new Font("Arial", Font.PLAIN, 10));
 				fieldButtons[i][j].setName(i + " " + j);
 				fieldButtons[i][j].setEnabled(true);
-				fieldButtons[i][j].addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						System.out.println(((JComponent) e.getSource()).getName());
-						//TODO: complete action listener for clicking field
-					}
-				});
+				fieldButtons[i][j].addActionListener(listener);
 				
 				GridBagConstraints gbc_fieldbtn = new GridBagConstraints();
 				gbc_fieldbtn.gridy = i+1;
@@ -302,6 +296,7 @@ public class ShipField extends JPanel {
 			}
 		}
 
+		;
 	}
 
 	//overide set enabled to mass setEnable the buttons
