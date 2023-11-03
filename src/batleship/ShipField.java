@@ -7,12 +7,109 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-
+import java.awt.EventQueue;
+import javax.swing.JFrame;
+import java.util.Random;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class ShipField extends JPanel {
+	// constants to represent the status of a cell in the field
+    private static final int EMPTY = 0;
+    private static final int SHIP = 1;
+    private static final int HIT = 2;
+    private static final int SUNK = 3;
+
+    private JFrame frame;
+    private int[][] fieldStatus; // array to keep track of field status
+
+    public ShipField() {
+        initialize();
+        fieldStatus = new int[9][9];
+        generateField(); // initialize the field with ships
+    }
+
+    // initialize the frame
+    private void initialize() {
+        frame = new JFrame();
+        frame.setBounds(100, 100, 450, 300);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    // method to randomly place ships on the field for CPU players
+    private void generateField() {
+        Random rand = new Random();
+        int x = rand.nextInt(10);
+        int y = rand.nextInt(10);
+        int direction = rand.nextInt(2); // 0 for horizontal, 1 for vertical
+
+        if (direction == 0) {
+            for (int i = 0; i < 5; i++) {
+                if (x + i < 10) {
+                    fieldStatus[y][x + i] = SHIP;
+                }
+            }
+        } else {
+            for (int i = 0; i < 5; i++) {
+                if (y + i < 10) {
+                    fieldStatus[y + i][x] = SHIP;
+                }
+            }
+        }
+    }
+
+    // method to place a ship at the location specified by the user
+    public boolean placeShip(int x, int y, int size, int direction) {
+        // validate input
+        if (x < 0 || x >= 10 || y < 0 || y >= 10 || size <= 0 || (direction != 0 && direction != 1)) {
+            return false;
+        }
+
+        // check if ship can be placed without overlapping or going out of bounds
+        if (direction == 0) {
+            for (int i = 0; i < size; i++) {
+                if (x + i >= 10 || fieldStatus[y][x + i] != EMPTY) {
+                    return false;
+                }
+            }
+        } else {
+            for (int i = 0; i < size; i++) {
+                if (y + i >= 10 || fieldStatus[y + i][x] != EMPTY) {
+                    return false;
+                }
+            }
+        }
+
+        // place the ship
+        if (direction == 0) {
+            for (int i = 0; i < size; i++) {
+                fieldStatus[y][x + i] = SHIP;
+            }
+        } else {
+            for (int i = 0; i < size; i++) {
+                fieldStatus[y + i][x] = SHIP;
+            }
+        }
+
+        return true;
+    }
+
+    // method to attempt a hit at the specified location
+    public boolean tryHit(int row, int col) {
+        // validate input
+        if (row < 0 || row >= 10 || col < 0 || col >= 10) {
+            return false;
+        }
+
+        // check if there is a ship at the specified location
+        if (fieldStatus[row][col] == SHIP) {
+            fieldStatus[row][col] = HIT;
+            return true;
+        }
+
+        return false;
+    }	
 	JButton[][] fieldButtons;
 
 	private static final long serialVersionUID = 1L;
