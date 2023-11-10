@@ -1,4 +1,4 @@
-package battleship;
+package batleship;
 
 import javax.swing.JPanel;
 import javax.swing.JButton;

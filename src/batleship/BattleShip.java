@@ -26,6 +26,7 @@ public class BattleShip extends JFrame {
 	private JPanel contentPane;
 
 	ShipField[] fields;
+	HUD hud;
 
 	List<Integer> ships; //list of ships used durring placing by a human player
 	int[] point; //temp vars to keep track of locations durrent setup
@@ -117,7 +118,7 @@ public class BattleShip extends JFrame {
 		gbc_field2.gridy = 0;
 		contentPane.add(fields[0], gbc_field2);
 		
-		HUD hud = new HUD();
+		hud = new HUD();
 		GridBagConstraints gbc_hud = new GridBagConstraints();
 		gbc_hud.insets = new Insets(0, 0, 0, 5);
 		gbc_hud.fill = GridBagConstraints.BOTH;
@@ -144,7 +145,7 @@ public class BattleShip extends JFrame {
 			if(point[0] == -1) {
 				point[0] = clickLoc[0];
 				point[1] = clickLoc[1];
-				System.out.println("Select second point");
+				hud.println("Select second point");
 			} else {
 				int dir = -1;
 				if(clickLoc[0] == point[0]) { ///same Y
@@ -154,18 +155,18 @@ public class BattleShip extends JFrame {
 					if(clickLoc[0] > point[0]) dir = 2; //down
 					else dir = 0; //up
 				} else {
-					System.out.println("invalid diagonal ship placement");
+					hud.println("invalid diagonal ship placement");
 				}
 				if(dir != -1) {
 					boolean placed = fields[field].placeShip(point[0], point[1], (int)ships.get(0), dir);
 					if(placed) {
 						ships.remove(0);
-						System.out.println("Placed ship succesfully!");
+						hud.println("Placed ship succesfully!");
 					} else {
-						System.out.println("Failed to place ship");
+						hud.println("Failed to place ship");
 					}
 				}
-				if(!checkSetupOver()) System.out.println("Select first point for ship size: " + ships.get(0));
+				if(!checkSetupOver()) hud.println("Select first point for ship size: " + ships.get(0));
 				point[0] = -1;
 				point[1] = -1;
 			}
@@ -183,7 +184,7 @@ public class BattleShip extends JFrame {
 		ships = new ArrayList<Integer>(Arrays.asList(2,2,3,4,6));
 		fields[1].setEnabled(true);
 		point = new int[]{-1,-1}; //begin point as invalid value for fresh ship placement
-		System.out.println("select first point for ship size: " + ships.get(0));
+		hud.println("select first point for ship size: " + ships.get(0));
 
 	}
 
@@ -195,7 +196,7 @@ public class BattleShip extends JFrame {
 				case 0:
 					fields[1].setEnabled(false);
 					fields[0].setEnabled(false);
-					System.out.println("beginning Game turn: " + (turn ? "P1" : "CPU"));
+					hud.println("beginning Game turn: " + (turn ? "P1" : "CPU"));
 					break;
 				case 2:
 					fields[1].setEnabled(false);
@@ -211,7 +212,7 @@ public class BattleShip extends JFrame {
 	private void gameWin(int player) {
 		fields[0].setEnabled(false);
 		fields[1].setEnabled(false);
-		System.out.println("%s Wins!");
+		hud.println("%s Wins!");
 	}
 
 
