@@ -25,12 +25,13 @@ public class BattleShip extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 
-	ShipField[] fields;
-	HUD hud;
+	private HUD hud;
+	private ShipField[] fields;
 
-	List<Integer> ships; //list of ships used durring placing by a human player
-	int[] point; //temp vars to keep track of locations durrent setup
+	private List<Integer> ships; //list of ships used durring placing by a human player
+	private int[] point; //temp vars to keep track of locations current setup
 
+	private int[] turns;
 	private boolean turn = true; //true for p1, false for p2(cpu)
 	private boolean cpuPlayer = true; // t/f if there is a cpu player
 	private int setup = 0; //game setup state 0-inplay 1-p1 setup 2-p2 setup
@@ -102,14 +103,14 @@ public class BattleShip extends JFrame {
 		gbc_field1.gridy = 1;
 		contentPane.add(fields[1], gbc_field1);
 
-		ActionListener field2Listener = new ActionListener() {
+		ActionListener field0Listener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
         String name = ((JComponent) e.getSource()).getName();
-        fieldClicked(1, name);
+        fieldClicked(0, name);
       }
     };
-		
-		fields[0] = new ShipField("CPU", field2Listener);
+
+		fields[0] = new ShipField("CPU", field0Listener);
 		fields[0].setEnabled(false);
 		GridBagConstraints gbc_field2 = new GridBagConstraints();
 		gbc_field2.insets = new Insets(0, 0, 0, 5);
@@ -129,6 +130,22 @@ public class BattleShip extends JFrame {
 
 		init();
 	}
+	
+	//sets game logic flags for new game and begins setup
+	private void init() {
+		// if(cpuPlayer) fields[0].generateField();
+		//setup instance vars ready for game setup
+		//start with no turns played
+		turns = new int[]{0,0};
+		//setup for player 1 status
+		setup = 1;
+		//put ships into otu ship "stack"
+		ships = new ArrayList<Integer>(Arrays.asList(2,2,3,4,6));
+		//enable filed 1 for P1 to place ships
+		fields[1].setEnabled(true);
+		point = new int[]{-1,-1}; //begin point as invalid value for fresh ship placement
+		hud.println("select first point for ship size: " + ships.get(0));
+	}
 
 	protected void fieldClicked(int field, String name) {
 		int[] clickLoc = {-1,-1};
@@ -138,21 +155,32 @@ public class BattleShip extends JFrame {
 			clickLoc[(clickLoc[0] == -1) ? 0 : 1] = Integer.parseInt(num);
 		};
 
-		// System.out.printf("click: field: %d square: %d, %d\n", field, clickLoc[0], clickLoc[1]);
-
+		System.out.printf("click: field: %d square: %d, %d\n", field, clickLoc[0], clickLoc[1]);
 
 		if(setup != 0) {
+			//continue with ship setup
+			setupShips(field, clickLoc[0], clickLoc[1]);
+		} else {
+			doTurn(field, clickLoc[0], clickLoc[1]);
+			if(!turn && cpuPlayer) { //check if CPU is playing
+				//cpu play
+				doTurn(1, (int)(Math.random()*9), (int)(Math.random()*9));
+			}
+		}
+	}
+
+	private void setupShips(int field, int r, int c) {
 			if(point[0] == -1) {
-				point[0] = clickLoc[0];
-				point[1] = clickLoc[1];
+				point[0] = r;
+				point[1] = c;
 				hud.println("Select second point");
 			} else {
 				int dir = -1;
-				if(clickLoc[0] == point[0]) { ///same Y
-					if(clickLoc[1] > point[1]) dir = 1; //right
+				if(r == point[0]) { //same row
+					if(c > point[1]) dir = 1; //right
 					else dir = 3; //left
-				} else if(clickLoc[1] == point[1])  {//same X
-					if(clickLoc[0] > point[0]) dir = 2; //down
+				} else if(c == point[1])  {//same column
+					if(r > point[0]) dir = 2; //down
 					else dir = 0; //up
 				} else {
 					hud.println("invalid diagonal ship placement");
@@ -170,33 +198,18 @@ public class BattleShip extends JFrame {
 				point[0] = -1;
 				point[1] = -1;
 			}
-		//end of setup
-		} else {
-			
-		}
 	}
 
-	//sets game logic flags for new game and begins setup
-	private void init() {
-		// if(cpuPlayer) field1.generateField();
-		//setup instance vars ready for game setup
-		setup = 1;
-		ships = new ArrayList<Integer>(Arrays.asList(2,2,3,4,6));
-		fields[1].setEnabled(true);
-		point = new int[]{-1,-1}; //begin point as invalid value for fresh ship placement
-		hud.println("select first point for ship size: " + ships.get(0));
-
-	}
-
-	//checks for ships left to place, then checks in the second players needs to place ships
+	//checks for ships left to place, then checks for the second players needs to place ships
 	private boolean checkSetupOver() {
 		if(ships.isEmpty()) {
+			//sets the next setup state, goes to 0 when cpu playing or player 2 setup over
 			setup  = (cpuPlayer || setup == 2) ? 0 : 2; //true: 0, false: 2
 			switch(setup) {
 				case 0:
-					fields[1].setEnabled(false);
-					fields[0].setEnabled(false);
 					hud.println("beginning Game turn: " + (turn ? "P1" : "CPU"));
+					fields[0].setEnabled(turn);
+					fields[1].setEnabled(!turn);
 					break;
 				case 2:
 					fields[1].setEnabled(false);
@@ -206,16 +219,38 @@ public class BattleShip extends JFrame {
 					break;
 			}
 		}
-		return ships.isEmpty();
+		return ships.isEmpty();  //this might be refilled(P2 setup), it might not(P2 setup over or CPU playing)
+	}
+
+	private void doTurn(int field, int r, int c) {
+		hud.print((turn ? "P1" : "CPU") + " aims for " + convert2char(r) + (c+1));
+
+		int status = fields[field].tryHit(r, c);
+
+		switch(status) {
+			case 1:
+				hud.println(".....hit!");
+				break;
+			case 0:
+				hud.println(".....miss!");
+				break;
+			case 2: 
+				gameWin(field);
+		}
+
+		turns[field]++; //inc turns counter for player
+		turn = !turn; //switch turn
+	}
+
+	private char convert2char(int num) {
+		return (char)(num + 0x41); //0x41 turns int 0..9 into ascii for A..I
 	}
 
 	private void gameWin(int player) {
 		fields[0].setEnabled(false);
 		fields[1].setEnabled(false);
-		hud.println("%s Wins!");
+		hud.println((turn ? "P1" : "CPU") + "Wins!");
 	}
-
-
 
 	protected void clicked_About() {
 		JOptionPane.showMessageDialog(this, "Made by the Algorithmic Armada");

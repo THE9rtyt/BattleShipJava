@@ -1,11 +1,11 @@
 package batleship;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JLabel;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
-import java.awt.print.PrinterException;
 import javax.swing.JTextArea;
 import java.awt.Font;
 
@@ -53,7 +53,7 @@ public class HUD extends JPanel {
 		gbc_txtrYeet.fill = GridBagConstraints.BOTH;
 		gbc_txtrYeet.gridx = 0;
 		gbc_txtrYeet.gridy = 1;
-		add(txtConsole, gbc_txtrYeet);
+		add(new JScrollPane(txtConsole), gbc_txtrYeet);
 	}
 
 	public void println(String text) {

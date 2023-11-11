@@ -8,8 +8,10 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.List;
 import java.awt.Color;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class ShipField extends JPanel {
 	private static final int EMPTY = 0;
@@ -17,8 +19,15 @@ public class ShipField extends JPanel {
 	private static final int HIT = 2;
 	private static final int SUNK = 3;
 
-	private JFrame frame;
-	private int[][] fieldStatus;
+
+	private static int ships = 0;
+	private static ArrayList<int[]>[] shipsList;
+	private int hits;
+
+	private int[][][] fieldStatus;
+	// fieldStatus[x][y][0] empty/ship/hit/sunk
+	// fieldStatus[x][y][1] ship#
+
 
 	private JButton[][] fieldButtons;
 
@@ -185,10 +194,10 @@ public class ShipField extends JPanel {
 		gbc_lblI.gridy = 9;
 		add(lblI, gbc_lblI);
 
-		fieldStatus = new int[9][9];
+		fieldStatus = new int[9][9][2];
 		for (int i = 0; i < fieldStatus.length; i++) {
 			for (int j = 0; j < fieldStatus.length; j++) {
-				fieldStatus[i][j] = EMPTY;
+				fieldStatus[i][j][0] = EMPTY;
 			}
 		}
 
@@ -208,6 +217,9 @@ public class ShipField extends JPanel {
 				add(fieldButtons[i][j], gbc_fieldbtn);
 			}
 		}
+
+		shipsList = new ArrayList[6];
+		hits = 0;
 	}
 
 	@Override
@@ -227,42 +239,53 @@ public class ShipField extends JPanel {
 		try {
 			if (direction == 2) { // down
 				for (int i = 0; i < size; i++) {
-					if (y + i >= 9 || fieldStatus[y + i][x] != EMPTY) {
+					if (y + i >= 9 || fieldStatus[y + i][x][0] != EMPTY) {
 						return false;
 					}
 				}
+				ships++;
+
+				ArrayList<int[]> newShip = new ArrayList<int[]>();
 				for (int i = 0; i < size; i++) {
-					fieldStatus[y + i][x] = SHIP;
+					fieldStatus[y + i][x][0] = SHIP;
 					fieldButtons[y + i][x].setBackground(Color.DARK_GRAY);
+
+					fieldStatus[y + i][x][1] = ships; //save ship's #
+					int[] point = {y+i, x};	//save point in array
+					newShip.add(point);	//push point into list
+					hits++;
 				}
+
+				shipsList[ships] = newShip;
+
 			} else if (direction == 0) { // up
 				for (int i = size * -1 + 1; i <= 0; i++) {
-					if (y + i >= 9 || fieldStatus[y + i][x] != EMPTY) {
+					if (y + i >= 9 || fieldStatus[y + i][x][0] != EMPTY) {
 						return false;
 					}
 				}
 				for (int i = size * -1 + 1; i <= 0; i++) {
-					fieldStatus[y + i][x] = SHIP;
+					fieldStatus[y + i][x][0] = SHIP;
 					fieldButtons[y + i][x].setBackground(Color.DARK_GRAY);
 				}
 			} else if (direction == 3) { // left
 				for (int i = size * -1 + 1; i <= 0; i++) {
-					if (x + i >= 9 || fieldStatus[y][x + i] != EMPTY) {
+					if (x + i >= 9 || fieldStatus[y][x + i][0] != EMPTY) {
 						return false;
 					}
 				}
 				for (int i = size * -1 + 1; i <= 0; i++) {
-					fieldStatus[y][x + i] = SHIP;
+					fieldStatus[y][x + i][0] = SHIP;
 					fieldButtons[y][x + i].setBackground(Color.DARK_GRAY);
 				}
 			} else if (direction == 1) { // right
 				for (int i = 0; i < size; i++) {
-					if (x + i >= 9 || fieldStatus[y][x + i] != EMPTY) {
+					if (x + i >= 9 || fieldStatus[y][x + i][0] != EMPTY) {
 						return false;
 					}
 				}
 				for (int i = 0; i < size; i++) {
-					fieldStatus[y][x + i] = SHIP;
+					fieldStatus[y][x + i][0] = SHIP;
 					fieldButtons[y][x + i].setBackground(Color.DARK_GRAY);
 				}
 			}
@@ -272,17 +295,33 @@ public class ShipField extends JPanel {
 		}
 	}
 
-	public boolean tryHit(int row, int col) {
+	public int tryHit(int row, int col) {
 		if (row < 0 || row >= 9 || col < 0 || col >= 9) {
-			return false;
+			return 0;
 		}
 
-		if (fieldStatus[row][col] == SHIP) {
-			fieldStatus[row][col] = HIT;
+		if (fieldStatus[row][col][0] == SHIP) {
+			fieldStatus[row][col][0] = HIT;
 			fieldButtons[row][col].setBackground(Color.RED);
-			return true;
+			
+			hits--;
+			if(hits == 0) { //win state
+				return 2;
+			}
+
+			int shipHit = fieldStatus[row][col][1];
+
+			boolean sunk = true;
+			for(int[] point : shipsList[shipHit]) {
+				sunk = fieldStatus[point[0]][point[1]][0] != HIT;
+			}	
+			if(sunk) { //ship sunk
+				//TODO
+			}
+
+			return 1;
 		}
 
-		return false;
+		return 0;
 	}
 }
