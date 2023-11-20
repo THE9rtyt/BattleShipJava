@@ -230,70 +230,99 @@ public class ShipField extends JPanel {
 			}
 		}
 	}
-
 	public boolean placeShip(int y, int x, int size, int direction) {
-		if (x < 0 || x >= 9 || y < 0 || y >= 9 || size <= 0) {
-			return false;
-		}
+	    if (x < 0 || x >= 9 || y < 0 || y >= 9 || size <= 0) {
+	        return false;
+	    }
 
-		try {
-			if (direction == 2) { // down
-				for (int i = 0; i < size; i++) {
-					if (y + i >= 9 || fieldStatus[y + i][x][0] != EMPTY) {
-						return false;
-					}
-				}
-				ships++;
+	    try {
+	        if (direction == 2) { // down
+	            for (int i = 0; i < size; i++) {
+	                if (y + i >= 9 || fieldStatus[y + i][x][0] != EMPTY) {
+	                    return false;
+	                }
+	            }
+	            ships++;
 
-				ArrayList<int[]> newShip = new ArrayList<int[]>();
-				for (int i = 0; i < size; i++) {
-					fieldStatus[y + i][x][0] = SHIP;
-					fieldButtons[y + i][x].setBackground(Color.DARK_GRAY);
+	            ArrayList<int[]> newShip = new ArrayList<int[]>();
+	            for (int i = 0; i < size; i++) {
+	                fieldStatus[y + i][x][0] = SHIP;
+	                fieldButtons[y + i][x].setBackground(Color.DARK_GRAY);
 
-					fieldStatus[y + i][x][1] = ships; //save ship's #
-					int[] point = {y+i, x};	//save point in array
-					newShip.add(point);	//push point into list
-					hits++;
-				}
+	                fieldStatus[y + i][x][1] = ships;
+	                int[] point = { y + i, x };
+	                newShip.add(point);
+	                hits++;
+	            }
 
-				shipsList[ships] = newShip;
+	            shipsList[ships] = newShip;
+	        } else if (direction == 0) { // up
+	            for (int i = 0; i < size; i++) {
+	                if (y - i < 0 || fieldStatus[y - i][x][0] != EMPTY) {
+	                    return false;
+	                }
+	            }
+	            ships++;
 
-			} else if (direction == 0) { // up
-				for (int i = size * -1 + 1; i <= 0; i++) {
-					if (y + i >= 9 || fieldStatus[y + i][x][0] != EMPTY) {
-						return false;
-					}
-				}
-				for (int i = size * -1 + 1; i <= 0; i++) {
-					fieldStatus[y + i][x][0] = SHIP;
-					fieldButtons[y + i][x].setBackground(Color.DARK_GRAY);
-				}
-			} else if (direction == 3) { // left
-				for (int i = size * -1 + 1; i <= 0; i++) {
-					if (x + i >= 9 || fieldStatus[y][x + i][0] != EMPTY) {
-						return false;
-					}
-				}
-				for (int i = size * -1 + 1; i <= 0; i++) {
-					fieldStatus[y][x + i][0] = SHIP;
-					fieldButtons[y][x + i].setBackground(Color.DARK_GRAY);
-				}
-			} else if (direction == 1) { // right
-				for (int i = 0; i < size; i++) {
-					if (x + i >= 9 || fieldStatus[y][x + i][0] != EMPTY) {
-						return false;
-					}
-				}
-				for (int i = 0; i < size; i++) {
-					fieldStatus[y][x + i][0] = SHIP;
-					fieldButtons[y][x + i].setBackground(Color.DARK_GRAY);
-				}
-			}
-			return true;
-		} catch (IndexOutOfBoundsException iob) {
-			return false;
-		}
+	            ArrayList<int[]> newShip = new ArrayList<int[]>();
+	            for (int i = 0; i < size; i++) {
+	                fieldStatus[y - i][x][0] = SHIP;
+	                fieldButtons[y - i][x].setBackground(Color.DARK_GRAY);
+
+	                fieldStatus[y - i][x][1] = ships;
+	                int[] point = { y - i, x };
+	                newShip.add(point);
+	                hits++;
+	            }
+
+	            shipsList[ships] = newShip;
+	        } else if (direction == 3) { // left
+	            for (int i = 0; i < size; i++) {
+	                if (x - i < 0 || fieldStatus[y][x - i][0] != EMPTY) {
+	                    return false;
+	                }
+	            }
+	            ships++;
+
+	            ArrayList<int[]> newShip = new ArrayList<int[]>();
+	            for (int i = 0; i < size; i++) {
+	                fieldStatus[y][x - i][0] = SHIP;
+	                fieldButtons[y][x - i].setBackground(Color.DARK_GRAY);
+
+	                fieldStatus[y][x - i][1] = ships;
+	                int[] point = { y, x - i };
+	                newShip.add(point);
+	                hits++;
+	            }
+
+	            shipsList[ships] = newShip;
+	        } else if (direction == 1) { // right
+	            for (int i = 0; i < size; i++) {
+	                if (x + i >= 9 || fieldStatus[y][x + i][0] != EMPTY) {
+	                    return false;
+	                }
+	            }
+	            ships++;
+
+	            ArrayList<int[]> newShip = new ArrayList<int[]>();
+	            for (int i = 0; i < size; i++) {
+	                fieldStatus[y][x + i][0] = SHIP;
+	                fieldButtons[y][x + i].setBackground(Color.DARK_GRAY);
+
+	                fieldStatus[y][x + i][1] = ships;
+	                int[] point = { y, x + i };
+	                newShip.add(point);
+	                hits++;
+	            }
+
+	            shipsList[ships] = newShip;
+	        }
+	        return true;
+	    } catch (IndexOutOfBoundsException iob) {
+	        return false;
+	    }
 	}
+
 
 	public int tryHit(int row, int col) {
 		if (row < 0 || row >= 9 || col < 0 || col >= 9) {
@@ -315,13 +344,16 @@ public class ShipField extends JPanel {
 			for(int[] point : shipsList[shipHit]) {
 				sunk = fieldStatus[point[0]][point[1]][0] != HIT;
 			}	
-			if(sunk) { //ship sunk
-				//TODO
-			}
+			if (sunk) { // ship sunk
+	            for (int[] point : shipsList[shipHit]) {
+	                fieldStatus[point[0]][point[1]][0] = SUNK;
+	                fieldButtons[point[0]][point[1]].setBackground(Color.BLACK);
+	            }
+	            return 3; // 3 indicates that a ship is sunk
+	        }
 
-			return 1;
-		}
+	        return 1; // 1 indicates a regular hit
+	    }
 
-		return 0;
-	}
-}
+	    return 0; // 0 indicates a miss
+	}}
