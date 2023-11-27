@@ -33,7 +33,7 @@ public class BattleShip extends JFrame {
 	private List<Integer> ships; //list of ships used durring placing by a human player
 	private int[] point; //temp vars to keep track of locations current setup
 
-	private int[] turns;
+	private int turns;
 	private boolean turn = true; //true for p1, false for p2(cpu)
 	private boolean cpuPlayer = true; // t/f if there is a cpu player
 	/*
@@ -145,7 +145,8 @@ public class BattleShip extends JFrame {
 		if(cpuPlayer) generateField(fields[0]);
 		//setup instance vars ready for game setup
 		//start with no turns played
-		turns = new int[]{0,0};
+		turns = 0;
+		hud.setTurn(turns);
 		//setup for player 1 status
 		setup = 1;
 		//put ships into otu ship "stack"
@@ -182,6 +183,10 @@ public class BattleShip extends JFrame {
 			setupShips(field, clickLoc[0], clickLoc[1]);
 		} else {
 			doTurn(field, clickLoc[0], clickLoc[1]);
+			
+			turns++; //inc turns counter for player
+			hud.setTurn(turns);
+
 			if(!turn && cpuPlayer && setup != 3) { //check if CPU is playing and the game is not over
 				//cpu play
 				doTurn(1, (int)(Math.random()*9), (int)(Math.random()*9));
@@ -262,7 +267,6 @@ public class BattleShip extends JFrame {
 				return;
 		}
 
-		turns[field]++; //inc turns counter for player
 		turn = !turn; //switch turn
 	}
 
