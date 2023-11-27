@@ -20,8 +20,8 @@ public class ShipField extends JPanel {
 	private static final int SUNK = 3;
 
 
-	private static int ships = 0;
-	private static ArrayList<int[]>[] shipsList;
+	private int ships = 0;
+	private ArrayList<int[]>[] shipsList;
 	private int hits;
 
 	private int[][][] fieldStatus;
@@ -342,7 +342,8 @@ public class ShipField extends JPanel {
 
 			boolean sunk = true;
 			for(int[] point : shipsList[shipHit]) {
-				sunk = fieldStatus[point[0]][point[1]][0] != HIT;
+				sunk = fieldStatus[point[0]][point[1]][0] == HIT;
+				if(!sunk) break;
 			}	
 			if (sunk) { // ship sunk
 	            for (int[] point : shipsList[shipHit]) {

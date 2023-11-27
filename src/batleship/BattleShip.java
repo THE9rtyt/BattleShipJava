@@ -28,13 +28,22 @@ public class BattleShip extends JFrame {
 	private HUD hud;
 	private ShipField[] fields;
 
+	private static final List<Integer> SHIPS_ALL = Arrays.asList(2,2,3,4,6);
+
 	private List<Integer> ships; //list of ships used durring placing by a human player
 	private int[] point; //temp vars to keep track of locations current setup
 
 	private int[] turns;
 	private boolean turn = true; //true for p1, false for p2(cpu)
 	private boolean cpuPlayer = true; // t/f if there is a cpu player
-	private int setup = 0; //game setup state 0-inplay 1-p1 setup 2-p2 setup
+	/*
+	game setup state 
+	0-inplay 
+	1-p1 setup 
+	2-p2 setup
+	3-game finished
+	*/
+	private int setup = 0; 
 
 	/**
 	 * Launch the application.
@@ -133,18 +142,31 @@ public class BattleShip extends JFrame {
 	
 	//sets game logic flags for new game and begins setup
 	private void init() {
-		// if(cpuPlayer) fields[0].generateField();
+		if(cpuPlayer) generateField(fields[0]);
 		//setup instance vars ready for game setup
 		//start with no turns played
 		turns = new int[]{0,0};
 		//setup for player 1 status
 		setup = 1;
 		//put ships into otu ship "stack"
-		ships = new ArrayList<Integer>(Arrays.asList(2,2,3,4,6));
+		ships = new ArrayList<Integer>(SHIPS_ALL);
 		//enable filed 1 for P1 to place ships
 		fields[1].setEnabled(true);
 		point = new int[]{-1,-1}; //begin point as invalid value for fresh ship placement
 		hud.println("select first point for ship size: " + ships.get(0));
+	}
+
+	private void generateField(ShipField field) {
+		ships = new ArrayList<Integer>(SHIPS_ALL);
+
+		while(!ships.isEmpty()) {
+			int xPlace = (int)(Math.random()*9);
+			int yPlace = (int)(Math.random()*9);
+			int dirPlace = (int)(Math.random()*4);
+
+			if(field.placeShip(xPlace, yPlace, ships.get(0), dirPlace))
+				ships.remove(0);
+		}
 	}
 
 	protected void fieldClicked(int field, String name) {
@@ -155,14 +177,12 @@ public class BattleShip extends JFrame {
 			clickLoc[(clickLoc[0] == -1) ? 0 : 1] = Integer.parseInt(num);
 		};
 
-		System.out.printf("click: field: %d square: %d, %d\n", field, clickLoc[0], clickLoc[1]);
-
 		if(setup != 0) {
 			//continue with ship setup
 			setupShips(field, clickLoc[0], clickLoc[1]);
 		} else {
 			doTurn(field, clickLoc[0], clickLoc[1]);
-			if(!turn && cpuPlayer) { //check if CPU is playing
+			if(!turn && cpuPlayer && setup != 3) { //check if CPU is playing and the game is not over
 				//cpu play
 				doTurn(1, (int)(Math.random()*9), (int)(Math.random()*9));
 			}
@@ -214,7 +234,7 @@ public class BattleShip extends JFrame {
 				case 2:
 					fields[1].setEnabled(false);
 					fields[0].setEnabled(true);
-					ships = new ArrayList<Integer>(Arrays.asList(2,2,3,4,6));
+					ships = new ArrayList<Integer>(SHIPS_ALL);
 				default:
 					break;
 			}
@@ -228,14 +248,18 @@ public class BattleShip extends JFrame {
 		int status = fields[field].tryHit(r, c);
 
 		switch(status) {
-			case 1:
+			case 1: //normal hit
 				hud.println(".....hit!");
 				break;
-			case 0:
+			case 0: //normal miss
 				hud.println(".....miss!");
+				break;
+			case 3: //ship sunk
+				hud.println("..ship sunk!");
 				break;
 			case 2: 
 				gameWin(field);
+				return;
 		}
 
 		turns[field]++; //inc turns counter for player
@@ -249,7 +273,8 @@ public class BattleShip extends JFrame {
 	private void gameWin(int player) {
 		fields[0].setEnabled(false);
 		fields[1].setEnabled(false);
-		hud.println((turn ? "P1" : "CPU") + "Wins!");
+		setup = 3;
+		hud.println(".....hit!\n\n" + (turn ? "P1" : "CPU") + "Wins!");
 	}
 
 	protected void clicked_About() {
