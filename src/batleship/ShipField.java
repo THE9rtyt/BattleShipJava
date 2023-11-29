@@ -1,47 +1,50 @@
 package batleship;
 
 import javax.swing.JPanel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.List;
 import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+//ShipField class represents the panel for the player's ship field
 public class ShipField extends JPanel {
 	private static final int EMPTY = 0;
 	private static final int SHIP = 1;
 	private static final int HIT = 2;
 	private static final int SUNK = 3;
 
+    private int ships = 0; // Number of ships placed on the field
+    private ArrayList<int[]>[] shipsList; // List of ship coordinates
+    private int hits; // Number of hits on ships
 
-	private int ships = 0;
-	private ArrayList<int[]>[] shipsList;
-	private int hits;
+    private int[][][] fieldStatus; // 3D array to store the status of each cell on the field
+    // fieldStatus[x][y][0] represents empty/ship/hit/sunk
+    // fieldStatus[x][y][1] represents the ship number
 
-	private int[][][] fieldStatus;
-	// fieldStatus[x][y][0] empty/ship/hit/sunk
-	// fieldStatus[x][y][1] ship#
+    private JButton[][] fieldButtons; // Buttons representing each cell on the field
 
+    private static final long serialVersionUID = 1L;
 
-	private JButton[][] fieldButtons;
-
-	private static final long serialVersionUID = 1L;
-
+    // Constructor for ShipField panel
 	public ShipField(String name, ActionListener listener) {
 		GridBagLayout gridBagLayout = new GridBagLayout();
+		// Set up the layout with GridBagLayout
 		gridBagLayout.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0,
 				Double.MIN_VALUE };
 		gridBagLayout.rowWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE };
 		setLayout(gridBagLayout);
-
+		// Add labels for grid coordinates
 		JLabel lblPlayer = new JLabel(name);
 		lblPlayer.setFont(new Font("Arial", Font.PLAIN, 12));
 		GridBagConstraints gbc_lblPlayer = new GridBagConstraints();
@@ -193,7 +196,7 @@ public class ShipField extends JPanel {
 		gbc_lblI.gridx = 0;
 		gbc_lblI.gridy = 9;
 		add(lblI, gbc_lblI);
-
+	    // Initialize fieldStatus array to represent an empty field
 		fieldStatus = new int[9][9][2];
 		for (int i = 0; i < fieldStatus.length; i++) {
 			for (int j = 0; j < fieldStatus.length; j++) {
@@ -201,7 +204,7 @@ public class ShipField extends JPanel {
 			}
 		}
 
-		// Setup field buttons
+		// Initialize field buttons with appropriate properties and listeners
 		fieldButtons = new JButton[9][9];
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
@@ -218,10 +221,10 @@ public class ShipField extends JPanel {
 			}
 		}
 
-		shipsList = new ArrayList[6];
-		hits = 0;
+		shipsList = new ArrayList[6];// Initialize the array to store ship coordinates
+		hits = 0;// Initialize the number of hits
 	}
-
+	// Additional method to set the enabled/disabled state of the panel
 	@Override
 	public void setEnabled(boolean enabled) {
 		for (int i = 0; i < 9; i++) {
@@ -230,6 +233,13 @@ public class ShipField extends JPanel {
 			}
 		}
 	}
+	 // Method to resize an image given its path and desired dimensions
+	private ImageIcon resizeImage(String imagePath, int width, int height) {
+        ImageIcon imageIcon = new ImageIcon(getClass().getResource(imagePath));
+        Image image = imageIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        return new ImageIcon(image);
+	}
+	// Method to place a ship on the field 
 	public boolean placeShip(int y, int x, int size, int direction) {
 	    if (x < 0 || x >= 9 || y < 0 || y >= 9 || size <= 0) {
 	        return false;
@@ -247,7 +257,7 @@ public class ShipField extends JPanel {
 	            ArrayList<int[]> newShip = new ArrayList<int[]>();
 	            for (int i = 0; i < size; i++) {
 	                fieldStatus[y + i][x][0] = SHIP;
-	                fieldButtons[y + i][x].setBackground(Color.DARK_GRAY);
+	                fieldButtons[y + i][x].setIcon(resizeImage("/images/shipvert.png", 20, 20)); // Set the image
 
 	                fieldStatus[y + i][x][1] = ships;
 	                int[] point = { y + i, x };
@@ -267,8 +277,7 @@ public class ShipField extends JPanel {
 	            ArrayList<int[]> newShip = new ArrayList<int[]>();
 	            for (int i = 0; i < size; i++) {
 	                fieldStatus[y - i][x][0] = SHIP;
-	                fieldButtons[y - i][x].setBackground(Color.DARK_GRAY);
-
+	                fieldButtons[y - i][x].setIcon(resizeImage("/images/shipvert.png", 20, 20));
 	                fieldStatus[y - i][x][1] = ships;
 	                int[] point = { y - i, x };
 	                newShip.add(point);
@@ -287,8 +296,100 @@ public class ShipField extends JPanel {
 	            ArrayList<int[]> newShip = new ArrayList<int[]>();
 	            for (int i = 0; i < size; i++) {
 	                fieldStatus[y][x - i][0] = SHIP;
-	                fieldButtons[y][x - i].setBackground(Color.DARK_GRAY);
+	                
+	                fieldButtons[y][x - i].setIcon(resizeImage("/images/ship.png", 20, 20));
+	                fieldStatus[y][x - i][1] = ships;
+	                int[] point = { y, x - i };
+	                newShip.add(point);
+	                hits++;
+	            }
 
+	            shipsList[ships] = newShip;
+	        } else if (direction == 1) { // right
+	            for (int i = 0; i < size; i++) {
+	                if (x + i >= 9 || fieldStatus[y][x + i][0] != EMPTY) {
+	                    return false;
+	                }
+	            }
+	            ships++;
+
+	            ArrayList<int[]> newShip = new ArrayList<int[]>();
+	            for (int i = 0; i < size; i++) {
+	                fieldStatus[y][x + i][0] = SHIP; 
+	                fieldButtons[y][x + i].setIcon(resizeImage("/images/ship.png", 20, 20));
+
+	                fieldStatus[y][x + i][1] = ships;
+	                int[] point = { y, x + i };
+	                newShip.add(point);
+	                hits++;
+	            }
+
+	            shipsList[ships] = newShip;
+	        }
+	        return true;
+	    } catch (IndexOutOfBoundsException iob) {
+	        return false;
+	    }
+	}
+	//place ship method for CPU that does not reveal ships
+	public boolean placeShip2(int y, int x, int size, int direction) {
+	    if (x < 0 || x >= 9 || y < 0 || y >= 9 || size <= 0) {
+	        return false;
+	    }
+
+	    try {
+	        if (direction == 2) { // down
+	            for (int i = 0; i < size; i++) {
+	                if (y + i >= 9 || fieldStatus[y + i][x][0] != EMPTY) {
+	                    return false;
+	                }
+	            }
+	            ships++;
+
+	            ArrayList<int[]> newShip = new ArrayList<int[]>();
+	            for (int i = 0; i < size; i++) {
+	                fieldStatus[y + i][x][0] = SHIP;
+	                
+
+	                fieldStatus[y + i][x][1] = ships;
+	                int[] point = { y + i, x };
+	                newShip.add(point);
+	                hits++;
+	            }
+
+	            shipsList[ships] = newShip;
+	        } else if (direction == 0) { // up
+	            for (int i = 0; i < size; i++) {
+	                if (y - i < 0 || fieldStatus[y - i][x][0] != EMPTY) {
+	                    return false;
+	                }
+	            }
+	            ships++;
+
+	            ArrayList<int[]> newShip = new ArrayList<int[]>();
+	            for (int i = 0; i < size; i++) {
+	                fieldStatus[y - i][x][0] = SHIP;
+	                
+	                fieldStatus[y - i][x][1] = ships;
+	                int[] point = { y - i, x };
+	                newShip.add(point);
+	                hits++;
+	            }
+
+	            shipsList[ships] = newShip;
+	        } else if (direction == 3) { // left
+	            for (int i = 0; i < size; i++) {
+	                if (x - i < 0 || fieldStatus[y][x - i][0] != EMPTY) {
+	                    return false;
+	                }
+	            }
+	            ships++;
+
+	            ArrayList<int[]> newShip = new ArrayList<int[]>();
+	            for (int i = 0; i < size; i++) {
+	                fieldStatus[y][x - i][0] = SHIP;
+	                
+	                
 	                fieldStatus[y][x - i][1] = ships;
 	                int[] point = { y, x - i };
 	                newShip.add(point);
@@ -307,7 +408,7 @@ public class ShipField extends JPanel {
 	            ArrayList<int[]> newShip = new ArrayList<int[]>();
 	            for (int i = 0; i < size; i++) {
 	                fieldStatus[y][x + i][0] = SHIP;
-	                fieldButtons[y][x + i].setBackground(Color.DARK_GRAY);
+	                
 
 	                fieldStatus[y][x + i][1] = ships;
 	                int[] point = { y, x + i };
@@ -323,7 +424,7 @@ public class ShipField extends JPanel {
 	    }
 	}
 
-
+	// Method to attempt hitting a cell on the opponent's field
 	public int tryHit(int row, int col) {
 		if (row < 0 || row >= 9 || col < 0 || col >= 9) {
 			return 0;
@@ -331,7 +432,7 @@ public class ShipField extends JPanel {
 
 		if (fieldStatus[row][col][0] == SHIP) {
 			fieldStatus[row][col][0] = HIT;
-			fieldButtons[row][col].setBackground(Color.RED);
+			fieldButtons[row][col].setIcon(resizeImage("/images/hit.png", 20, 20));
 			
 			hits--;
 			if(hits == 0) { //win state
@@ -348,7 +449,7 @@ public class ShipField extends JPanel {
 			if (sunk) { // ship sunk
 	            for (int[] point : shipsList[shipHit]) {
 	                fieldStatus[point[0]][point[1]][0] = SUNK;
-	                fieldButtons[point[0]][point[1]].setBackground(Color.BLACK);
+	                fieldButtons[point[0]][point[1]].setIcon(resizeImage("/images/sunk.png", 20, 20));
 	            }
 	            return 3; // 3 indicates that a ship is sunk
 	        }
