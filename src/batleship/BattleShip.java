@@ -1,17 +1,10 @@
 package batleship;
 
-import java.awt.EventQueue;
-
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.GridBagLayout;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 
+import java.awt.EventQueue;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,21 +18,27 @@ public class BattleShip extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 
+	// gui variables
 	private HUD hud;
 	private ShipField[] fields;
 
+	// var for copying off of, main list of ships to place
 	private static final List<Integer> SHIPS_ALL = Arrays.asList(2, 2, 3, 4, 6);
-
 	private List<Integer> ships; // list of ships used durring placing by a human player
 	private int[] point; // temp vars to keep track of locations current setup
 
-	private int turns;
+	// game settings variables
 	private boolean turn = true; // true for p1, false for p2(cpu)
 	private boolean cpuPlayer = true; // t/f if there is a cpu player
+
+	// cpu player object
+	private Cpu cpu;
 	/*
 	 * game setup state 0-inplay 1-p1 setup 2-p2 setup 3-game finished
 	 */
 	private int setup = 0;
+	// number of turns in the game
+	private int turns;
 
 	/**
 	 * Launch the application.
@@ -87,7 +86,7 @@ public class BattleShip extends JFrame {
 		gbl_contentPane.columnWidths = new int[] { 0, 0, 0 };
 		gbl_contentPane.rowHeights = new int[] { 0, 0, 0 };
 		gbl_contentPane.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
-		gbl_contentPane.rowWeights = new double[] { 1.0, Double.MIN_VALUE, 1.0 };
+		gbl_contentPane.rowWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
 		contentPane.setLayout(gbl_contentPane);
 
 		ActionListener field1Listener = new ActionListener() {
@@ -138,8 +137,11 @@ public class BattleShip extends JFrame {
 
 	// sets game logic flags for new game and begins setup
 	private void init() {
-		if (cpuPlayer)
-			generateField(fields[0]);
+		if (cpuPlayer) {
+			cpu = new Cpu(fields[0]);
+			ships = new ArrayList<Integer>(SHIPS_ALL);
+			cpu.generateField(ships);
+		}
 		// setup instance vars ready for game setup
 		// start with no turns played
 		turns = 0;
@@ -154,19 +156,6 @@ public class BattleShip extends JFrame {
 		hud.println("select first point for ship size: " + ships.get(0));
 	}
 
-	private void generateField(ShipField field) {
-		ships = new ArrayList<Integer>(SHIPS_ALL);
-
-		while (!ships.isEmpty()) {
-			int xPlace = (int) (Math.random() * 9);
-			int yPlace = (int) (Math.random() * 9);
-			int dirPlace = (int) (Math.random() * 4);
-
-			if (field.placeShip(xPlace, yPlace, ships.get(0), dirPlace))
-				ships.remove(0);
-		}
-	}
-
 	protected void fieldClicked(int field, String name) {
 		int[] clickLoc = { -1, -1 };
 
@@ -174,7 +163,6 @@ public class BattleShip extends JFrame {
 		for (String num : name.split(" ")) {
 			clickLoc[(clickLoc[0] == -1) ? 0 : 1] = Integer.parseInt(num);
 		}
-		;
 
 		if (setup != 0) {
 			// continue with ship setup
@@ -187,7 +175,9 @@ public class BattleShip extends JFrame {
 
 			if (!turn && cpuPlayer && setup != 3) { // check if CPU is playing and the game is not over
 				// cpu play
-				doTurn(1, (int) (Math.random() * 9), (int) (Math.random() * 9));
+				int[] cpuTarget = cpu.getNextTurn();
+				int hitStatus = doTurn(1, cpuTarget[0], cpuTarget[1]);
+				cpu.updateField(cpuTarget[0], cpuTarget[1], hitStatus);
 			}
 		}
 	}
@@ -251,7 +241,7 @@ public class BattleShip extends JFrame {
 		return ships.isEmpty(); // this might be refilled(P2 setup), it might not(P2 setup over or CPU playing)
 	}
 
-	private void doTurn(int field, int r, int c) {
+	private int doTurn(int field, int r, int c) {
 		hud.print((turn ? "P1" : "CPU") + " aims for " + convert2char(r) + (c + 1));
 
 		int status = fields[field].tryHit(r, c);
@@ -268,10 +258,11 @@ public class BattleShip extends JFrame {
 			break;
 		case 2:
 			gameWin(field);
-			return;
+			return status;
 		}
 
 		turn = !turn; // switch turn
+		return status;
 	}
 
 	private char convert2char(int num) {
