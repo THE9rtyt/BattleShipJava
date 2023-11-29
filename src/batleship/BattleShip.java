@@ -28,22 +28,18 @@ public class BattleShip extends JFrame {
 	private HUD hud;
 	private ShipField[] fields;
 
-	private static final List<Integer> SHIPS_ALL = Arrays.asList(2,2,3,4,6);
+	private static final List<Integer> SHIPS_ALL = Arrays.asList(2, 2, 3, 4, 6);
 
-	private List<Integer> ships; //list of ships used durring placing by a human player
-	private int[] point; //temp vars to keep track of locations current setup
+	private List<Integer> ships; // list of ships used durring placing by a human player
+	private int[] point; // temp vars to keep track of locations current setup
 
 	private int turns;
-	private boolean turn = true; //true for p1, false for p2(cpu)
+	private boolean turn = true; // true for p1, false for p2(cpu)
 	private boolean cpuPlayer = true; // t/f if there is a cpu player
 	/*
-	game setup state 
-	0-inplay 
-	1-p1 setup 
-	2-p2 setup
-	3-game finished
-	*/
-	private int setup = 0; 
+	 * game setup state 0-inplay 1-p1 setup 2-p2 setup 3-game finished
+	 */
+	private int setup = 0;
 
 	/**
 	 * Launch the application.
@@ -69,13 +65,13 @@ public class BattleShip extends JFrame {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 600);
-		
+
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
-		
+
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
-		
+
 		JMenuItem mntmAbout = new JMenuItem("About");
 		mntmAbout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -88,19 +84,19 @@ public class BattleShip extends JFrame {
 
 		setContentPane(contentPane);
 		GridBagLayout gbl_contentPane = new GridBagLayout();
-		gbl_contentPane.columnWidths = new int[]{0, 0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0};
-		gbl_contentPane.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{1.0, Double.MIN_VALUE, 1.0};
+		gbl_contentPane.columnWidths = new int[] { 0, 0, 0 };
+		gbl_contentPane.rowHeights = new int[] { 0, 0, 0 };
+		gbl_contentPane.columnWeights = new double[] { 1.0, 1.0, Double.MIN_VALUE };
+		gbl_contentPane.rowWeights = new double[] { 1.0, Double.MIN_VALUE, 1.0 };
 		contentPane.setLayout(gbl_contentPane);
 
 		ActionListener field1Listener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-        String name = ((JComponent) e.getSource()).getName();
-        fieldClicked(1, name);
-      }
-    };
-		
+			public void actionPerformed(ActionEvent e) {
+				String name = ((JComponent) e.getSource()).getName();
+				fieldClicked(1, name);
+			}
+		};
+
 		fields = new ShipField[2];
 
 		fields[1] = new ShipField("P1", field1Listener);
@@ -113,11 +109,11 @@ public class BattleShip extends JFrame {
 		contentPane.add(fields[1], gbc_field1);
 
 		ActionListener field0Listener = new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-        String name = ((JComponent) e.getSource()).getName();
-        fieldClicked(0, name);
-      }
-    };
+			public void actionPerformed(ActionEvent e) {
+				String name = ((JComponent) e.getSource()).getName();
+				fieldClicked(0, name);
+			}
+		};
 
 		fields[0] = new ShipField("CPU", field0Listener);
 		fields[0].setEnabled(false);
@@ -127,7 +123,7 @@ public class BattleShip extends JFrame {
 		gbc_field2.gridx = 0;
 		gbc_field2.gridy = 0;
 		contentPane.add(fields[0], gbc_field2);
-		
+
 		hud = new HUD();
 		GridBagConstraints gbc_hud = new GridBagConstraints();
 		gbc_hud.insets = new Insets(0, 0, 0, 5);
@@ -139,139 +135,147 @@ public class BattleShip extends JFrame {
 
 		init();
 	}
-	
-	//sets game logic flags for new game and begins setup
+
+	// sets game logic flags for new game and begins setup
 	private void init() {
-		if(cpuPlayer) generateField(fields[0]);
-		//setup instance vars ready for game setup
-		//start with no turns played
+		if (cpuPlayer)
+			generateField(fields[0]);
+		// setup instance vars ready for game setup
+		// start with no turns played
 		turns = 0;
 		hud.setTurn(turns);
-		//setup for player 1 status
+		// setup for player 1 status
 		setup = 1;
-		//put ships into otu ship "stack"
+		// put ships into otu ship "stack"
 		ships = new ArrayList<Integer>(SHIPS_ALL);
-		//enable filed 1 for P1 to place ships
+		// enable filed 1 for P1 to place ships
 		fields[1].setEnabled(true);
-		point = new int[]{-1,-1}; //begin point as invalid value for fresh ship placement
+		point = new int[] { -1, -1 }; // begin point as invalid value for fresh ship placement
 		hud.println("select first point for ship size: " + ships.get(0));
 	}
 
 	private void generateField(ShipField field) {
 		ships = new ArrayList<Integer>(SHIPS_ALL);
 
-		while(!ships.isEmpty()) {
-			int xPlace = (int)(Math.random()*9);
-			int yPlace = (int)(Math.random()*9);
-			int dirPlace = (int)(Math.random()*4);
+		while (!ships.isEmpty()) {
+			int xPlace = (int) (Math.random() * 9);
+			int yPlace = (int) (Math.random() * 9);
+			int dirPlace = (int) (Math.random() * 4);
 
-			if(field.placeShip(xPlace, yPlace, ships.get(0), dirPlace))
+			if (field.placeShip(xPlace, yPlace, ships.get(0), dirPlace))
 				ships.remove(0);
 		}
 	}
 
 	protected void fieldClicked(int field, String name) {
-		int[] clickLoc = {-1,-1};
+		int[] clickLoc = { -1, -1 };
 
-		//parse clicked location from name
-		for(String num : name.split(" ")) {
+		// parse clicked location from name
+		for (String num : name.split(" ")) {
 			clickLoc[(clickLoc[0] == -1) ? 0 : 1] = Integer.parseInt(num);
-		};
+		}
+		;
 
-		if(setup != 0) {
-			//continue with ship setup
+		if (setup != 0) {
+			// continue with ship setup
 			setupShips(field, clickLoc[0], clickLoc[1]);
 		} else {
 			doTurn(field, clickLoc[0], clickLoc[1]);
-			
-			turns++; //inc turns counter for player
+
+			turns++; // inc turns counter for player
 			hud.setTurn(turns);
 
-			if(!turn && cpuPlayer && setup != 3) { //check if CPU is playing and the game is not over
-				//cpu play
-				doTurn(1, (int)(Math.random()*9), (int)(Math.random()*9));
+			if (!turn && cpuPlayer && setup != 3) { // check if CPU is playing and the game is not over
+				// cpu play
+				doTurn(1, (int) (Math.random() * 9), (int) (Math.random() * 9));
 			}
 		}
 	}
 
 	private void setupShips(int field, int r, int c) {
-			if(point[0] == -1) {
-				point[0] = r;
-				point[1] = c;
-				hud.println("Select second point");
+		if (point[0] == -1) {
+			point[0] = r;
+			point[1] = c;
+			hud.println("Select second point");
+		} else {
+			int dir = -1;
+			if (r == point[0]) { // same row
+				if (c > point[1])
+					dir = 1; // right
+				else
+					dir = 3; // left
+			} else if (c == point[1]) {// same column
+				if (r > point[0])
+					dir = 2; // down
+				else
+					dir = 0; // up
 			} else {
-				int dir = -1;
-				if(r == point[0]) { //same row
-					if(c > point[1]) dir = 1; //right
-					else dir = 3; //left
-				} else if(c == point[1])  {//same column
-					if(r > point[0]) dir = 2; //down
-					else dir = 0; //up
-				} else {
-					hud.println("invalid diagonal ship placement");
-				}
-				if(dir != -1) {
-					boolean placed = fields[field].placeShip(point[0], point[1], (int)ships.get(0), dir);
-					if(placed) {
-						ships.remove(0);
-						hud.println("Placed ship succesfully!");
-					} else {
-						hud.println("Failed to place ship");
-					}
-				}
-				if(!checkSetupOver()) hud.println("Select first point for ship size: " + ships.get(0));
-				point[0] = -1;
-				point[1] = -1;
+				hud.println("invalid diagonal ship placement");
 			}
+			if (dir != -1) {
+				boolean placed = fields[field].placeShip(point[0], point[1], (int) ships.get(0), dir);
+				if (placed) {
+					ships.remove(0);
+					hud.println("Placed ship succesfully!");
+				} else {
+					hud.println("Failed to place ship");
+				}
+			}
+			if (!checkSetupOver())
+				hud.println("Select first point for ship size: " + ships.get(0));
+			point[0] = -1;
+			point[1] = -1;
+		}
 	}
 
-	//checks for ships left to place, then checks for the second players needs to place ships
+	// checks for ships left to place, then checks for the second players needs to
+	// place ships
 	private boolean checkSetupOver() {
-		if(ships.isEmpty()) {
-			//sets the next setup state, goes to 0 when cpu playing or player 2 setup over
-			setup  = (cpuPlayer || setup == 2) ? 0 : 2; //true: 0, false: 2
-			switch(setup) {
-				case 0:
-					hud.println("beginning Game turn: " + (turn ? "P1" : "CPU"));
-					fields[0].setEnabled(turn);
-					fields[1].setEnabled(!turn);
-					break;
-				case 2:
-					fields[1].setEnabled(false);
-					fields[0].setEnabled(true);
-					ships = new ArrayList<Integer>(SHIPS_ALL);
-				default:
-					break;
+		if (ships.isEmpty()) {
+			// sets the next setup state, goes to 0 when cpu playing or player 2 setup over
+			setup = (cpuPlayer || setup == 2) ? 0 : 2; // true: 0, false: 2
+			switch (setup) {
+			case 0:
+				hud.println("beginning Game turn: " + (turn ? "P1" : "CPU"));
+				fields[0].setEnabled(turn);
+				fields[1].setEnabled(!turn);
+				break;
+			case 2:
+				fields[1].setEnabled(false);
+				fields[0].setEnabled(true);
+				ships = new ArrayList<Integer>(SHIPS_ALL);
+			default:
+				break;
 			}
 		}
-		return ships.isEmpty();  //this might be refilled(P2 setup), it might not(P2 setup over or CPU playing)
+		return ships.isEmpty(); // this might be refilled(P2 setup), it might not(P2 setup over or CPU playing)
 	}
 
 	private void doTurn(int field, int r, int c) {
-		hud.print((turn ? "P1" : "CPU") + " aims for " + convert2char(r) + (c+1));
+		hud.print((turn ? "P1" : "CPU") + " aims for " + convert2char(r) + (c + 1));
 
 		int status = fields[field].tryHit(r, c);
 
-		switch(status) {
-			case 1: //normal hit
-				hud.println(".....hit!");
-				break;
-			case 0: //normal miss
-				hud.println(".....miss!");
-				break;
-			case 3: //ship sunk
-				hud.println("..ship sunk!");
-				break;
-			case 2: 
-				gameWin(field);
-				return;
+		switch (status) {
+		case 1: // normal hit
+			hud.println(".....hit!");
+			break;
+		case 0: // normal miss
+			hud.println(".....miss!");
+			break;
+		case 3: // ship sunk
+			hud.println("..ship sunk!");
+			break;
+		case 2:
+			gameWin(field);
+			return;
 		}
 
-		turn = !turn; //switch turn
+		turn = !turn; // switch turn
 	}
 
 	private char convert2char(int num) {
-		return (char)(num + 0x41); //0x41 turns int 0..9 into ascii for A..I
+		return (char) (num + 0x41); // 0x41 turns int 0..9 into ascii for A..I
 	}
 
 	private void gameWin(int player) {
