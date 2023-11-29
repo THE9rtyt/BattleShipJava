@@ -41,7 +41,7 @@ public class Cpu {
 			int yPlace = (int) (Math.random() * 9);
 			int dirPlace = (int) (Math.random() * 4);
 
-			if (ship_field.placeShip(xPlace, yPlace, ships.get(0), dirPlace))
+			if (ship_field.placeShip2(xPlace, yPlace, ships.get(0), dirPlace))
 				ships.remove(0);
 		}
 	}
