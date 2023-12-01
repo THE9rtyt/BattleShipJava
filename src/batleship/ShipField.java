@@ -15,6 +15,12 @@ public class ShipField extends JPanel {
 	private static final Font LABEL_FONT = new Font("Arial", Font.BOLD, 12);
 	private static final Font BUTTON_FONT = new Font("Arial", Font.PLAIN, 12);
 
+	private static Icon waterIcon;
+	private static Icon shipIcon;
+	private static Icon shipVertIcon;
+	private static Icon hitIcon;
+	private static Icon sunkIcon;
+
 	private int ships; // Number of ships placed on the field
 	private ArrayList<int[]>[] shipsList; // List of ship coordinates
 	private int hits; // Number of hits on ships
@@ -206,6 +212,14 @@ public class ShipField extends JPanel {
 			}
 		}
 
+		if (waterIcon == null) {
+			waterIcon = resizeImage("/images/water.png", 20, 20);
+			shipIcon = resizeImage("/images/ship.png", 20, 20);
+			shipVertIcon = resizeImage("/images/shipvert.png", 20, 20);
+			hitIcon = resizeImage("/images/hit.png", 20, 20);
+			sunkIcon = resizeImage("/images/sunk.png", 20, 20);
+		}
+
 		resetField();
 	}
 
@@ -267,29 +281,27 @@ public class ShipField extends JPanel {
 	public void showField(boolean hidden) {
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
-				String image = "";
+				Icon image;
 				switch (fieldStatus[i][j][0]) {
 				case SHIP:
 					if (!hidden) {
-						image = "ship" + (fieldStatus[i][j][2] == 0 ? "vert" : "");
+						image = fieldStatus[i][j][2] == 0 ? shipVertIcon : shipIcon;
+						break;
 					} // else: draw empty
-				case EMPTY:
-					// image = "water";
+				default:
+					image = waterIcon;
 					break;
 				case SUNK:
 					if (!hidden) {
-						image = "sunk";
+						image = sunkIcon;
 						break;
 					} // else: draw hit
 				case HIT:
-					image = "hit";
+					image = hitIcon;
 					break;
 				}
-				if (image != "") {
-					fieldButtons[i][j].setText("");
-					fieldButtons[i][j].setIcon(resizeImage("/images/" + image + ".png", 20, 20));
-				} else
-					fieldButtons[i][j].setText("X");
+				fieldButtons[i][j].setIcon(image);
+				fieldButtons[i][j].setDisabledIcon(image);
 			}
 		}
 	}
@@ -303,9 +315,6 @@ public class ShipField extends JPanel {
 		if (fieldStatus[row][col][0] == SHIP) {
 			fieldStatus[row][col][0] = HIT;
 			hits--;
-			if (hits == 0) { // win state
-				return 2;
-			}
 
 			int shipHit = fieldStatus[row][col][1];
 
@@ -319,7 +328,10 @@ public class ShipField extends JPanel {
 				for (int[] point : shipsList[shipHit]) {
 					fieldStatus[point[0]][point[1]][0] = SUNK;
 				}
-				return 3; // 3 indicates that a ship is sunk
+				if (hits == 0)
+					return 2; //win state
+				else
+					return 3; // 3 indicates that a ship is sunk
 			}
 
 			return 1; // 1 indicates a regular hit

@@ -182,8 +182,13 @@ public class BattleShip extends JFrame {
 			hud.setTurn(turns);
 		}
 
-		fields[0].showField(turn);
-		fields[1].showField(!turn);
+		if(setup != 3 ) {
+			fields[0].showField(turn);
+			fields[1].showField(!turn);
+		} else {
+			fields[0].showField(false);
+			fields[1].showField(false);
+		}
 	}
 
 	private void setupShips(int field, int r, int c) {
