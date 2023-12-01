@@ -1,17 +1,7 @@
 package batleship;
 
-import javax.swing.JPanel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.List;
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
@@ -22,31 +12,34 @@ public class ShipField extends JPanel {
 	private static final int HIT = 2;
 	private static final int SUNK = 3;
 
-    private int ships = 0; // Number of ships placed on the field
-    private ArrayList<int[]>[] shipsList; // List of ship coordinates
-    private int hits; // Number of hits on ships
+	private static final Font LABEL_FONT = new Font("Arial", Font.BOLD, 12);
+	private static final Font BUTTON_FONT = new Font("Arial", Font.PLAIN, 12);
 
-    private int[][][] fieldStatus; // 3D array to store the status of each cell on the field
-    // fieldStatus[x][y][0] represents empty/ship/hit/sunk
-    // fieldStatus[x][y][1] represents the ship number
+	private int ships; // Number of ships placed on the field
+	private ArrayList<int[]>[] shipsList; // List of ship coordinates
+	private int hits; // Number of hits on ships
 
-    private JButton[][] fieldButtons; // Buttons representing each cell on the field
+	private int[][][] fieldStatus; // 3D array to store the status of each cell on the field
+	// fieldStatus[x][y][0] represents empty/ship/hit/sunk
+	// fieldStatus[x][y][1] represents the ship number
+	// fieldStatus[x][y][2] vert/horz ship display
 
-    private static final long serialVersionUID = 1L;
+	private JButton[][] fieldButtons; // Buttons representing each cell on the field
 
-    // Constructor for ShipField panel
+	private static final long serialVersionUID = 1L;
+
+	// Constructor for ShipField panel
 	public ShipField(String name, ActionListener listener) {
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		// Set up the layout with GridBagLayout
 		gridBagLayout.columnWidths = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gridBagLayout.columnWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0,
-				Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, Double.MIN_VALUE };
+		gridBagLayout.columnWeights = new double[] { 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+		gridBagLayout.rowWeights = new double[] { 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 		setLayout(gridBagLayout);
 		// Add labels for grid coordinates
 		JLabel lblPlayer = new JLabel(name);
-		lblPlayer.setFont(new Font("Arial", Font.PLAIN, 12));
+		lblPlayer.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lblPlayer = new GridBagConstraints();
 		gbc_lblPlayer.insets = new Insets(0, 0, 5, 5);
 		gbc_lblPlayer.gridx = 0;
@@ -54,7 +47,7 @@ public class ShipField extends JPanel {
 		add(lblPlayer, gbc_lblPlayer);
 
 		JLabel lbl1 = new JLabel("1");
-		lbl1.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl1.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lbl1 = new GridBagConstraints();
 		gbc_lbl1.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl1.gridx = 1;
@@ -62,7 +55,7 @@ public class ShipField extends JPanel {
 		add(lbl1, gbc_lbl1);
 
 		JLabel lbl2 = new JLabel("2");
-		lbl2.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl2.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lbl2 = new GridBagConstraints();
 		gbc_lbl2.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl2.gridx = 2;
@@ -70,7 +63,7 @@ public class ShipField extends JPanel {
 		add(lbl2, gbc_lbl2);
 
 		JLabel lbl3 = new JLabel("3");
-		lbl3.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl3.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lbl3 = new GridBagConstraints();
 		gbc_lbl3.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl3.gridx = 3;
@@ -78,7 +71,7 @@ public class ShipField extends JPanel {
 		add(lbl3, gbc_lbl3);
 
 		JLabel lbl4 = new JLabel("4");
-		lbl4.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl4.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lbl4 = new GridBagConstraints();
 		gbc_lbl4.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl4.gridx = 4;
@@ -86,7 +79,7 @@ public class ShipField extends JPanel {
 		add(lbl4, gbc_lbl4);
 
 		JLabel lbl5 = new JLabel("5");
-		lbl5.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl5.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lbl5 = new GridBagConstraints();
 		gbc_lbl5.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl5.gridx = 5;
@@ -94,7 +87,7 @@ public class ShipField extends JPanel {
 		add(lbl5, gbc_lbl5);
 
 		JLabel lbl6 = new JLabel("6");
-		lbl6.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl6.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lbl6 = new GridBagConstraints();
 		gbc_lbl6.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl6.gridx = 6;
@@ -102,7 +95,7 @@ public class ShipField extends JPanel {
 		add(lbl6, gbc_lbl6);
 
 		JLabel lbl7 = new JLabel("7");
-		lbl7.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl7.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lbl7 = new GridBagConstraints();
 		gbc_lbl7.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl7.gridx = 7;
@@ -110,7 +103,7 @@ public class ShipField extends JPanel {
 		add(lbl7, gbc_lbl7);
 
 		JLabel lbl8 = new JLabel("8");
-		lbl8.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl8.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lbl8 = new GridBagConstraints();
 		gbc_lbl8.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl8.gridx = 8;
@@ -118,7 +111,7 @@ public class ShipField extends JPanel {
 		add(lbl8, gbc_lbl8);
 
 		JLabel lbl9 = new JLabel("9");
-		lbl9.setFont(new Font("Arial", Font.PLAIN, 12));
+		lbl9.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lbl9 = new GridBagConstraints();
 		gbc_lbl9.insets = new Insets(0, 0, 5, 5);
 		gbc_lbl9.gridx = 9;
@@ -126,7 +119,7 @@ public class ShipField extends JPanel {
 		add(lbl9, gbc_lbl9);
 
 		JLabel lblA = new JLabel("A");
-		lblA.setFont(new Font("Arial", Font.PLAIN, 12));
+		lblA.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lblA = new GridBagConstraints();
 		gbc_lblA.insets = new Insets(0, 0, 5, 5);
 		gbc_lblA.gridx = 0;
@@ -134,7 +127,7 @@ public class ShipField extends JPanel {
 		add(lblA, gbc_lblA);
 
 		JLabel lblB = new JLabel("B");
-		lblB.setFont(new Font("Arial", Font.PLAIN, 12));
+		lblB.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lblB = new GridBagConstraints();
 		gbc_lblB.insets = new Insets(0, 0, 5, 5);
 		gbc_lblB.gridx = 0;
@@ -142,7 +135,7 @@ public class ShipField extends JPanel {
 		add(lblB, gbc_lblB);
 
 		JLabel lblC = new JLabel("C");
-		lblC.setFont(new Font("Arial", Font.PLAIN, 12));
+		lblC.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lblC = new GridBagConstraints();
 		gbc_lblC.insets = new Insets(0, 0, 5, 5);
 		gbc_lblC.gridx = 0;
@@ -150,7 +143,7 @@ public class ShipField extends JPanel {
 		add(lblC, gbc_lblC);
 
 		JLabel lblD = new JLabel("D");
-		lblD.setFont(new Font("Arial", Font.PLAIN, 12));
+		lblD.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lblD = new GridBagConstraints();
 		gbc_lblD.insets = new Insets(0, 0, 5, 5);
 		gbc_lblD.gridx = 0;
@@ -158,7 +151,7 @@ public class ShipField extends JPanel {
 		add(lblD, gbc_lblD);
 
 		JLabel lblE = new JLabel("E");
-		lblE.setFont(new Font("Arial", Font.PLAIN, 12));
+		lblE.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lblE = new GridBagConstraints();
 		gbc_lblE.insets = new Insets(0, 0, 5, 5);
 		gbc_lblE.gridx = 0;
@@ -166,7 +159,7 @@ public class ShipField extends JPanel {
 		add(lblE, gbc_lblE);
 
 		JLabel lblF = new JLabel("F");
-		lblF.setFont(new Font("Arial", Font.PLAIN, 12));
+		lblF.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lblF = new GridBagConstraints();
 		gbc_lblF.insets = new Insets(0, 0, 5, 5);
 		gbc_lblF.gridx = 0;
@@ -174,7 +167,7 @@ public class ShipField extends JPanel {
 		add(lblF, gbc_lblF);
 
 		JLabel lblG = new JLabel("G");
-		lblG.setFont(new Font("Arial", Font.PLAIN, 12));
+		lblG.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lblG = new GridBagConstraints();
 		gbc_lblG.insets = new Insets(0, 0, 5, 5);
 		gbc_lblG.gridx = 0;
@@ -182,7 +175,7 @@ public class ShipField extends JPanel {
 		add(lblG, gbc_lblG);
 
 		JLabel lblH = new JLabel("H");
-		lblH.setFont(new Font("Arial", Font.PLAIN, 12));
+		lblH.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lblH = new GridBagConstraints();
 		gbc_lblH.insets = new Insets(0, 0, 5, 5);
 		gbc_lblH.gridx = 0;
@@ -190,28 +183,20 @@ public class ShipField extends JPanel {
 		add(lblH, gbc_lblH);
 
 		JLabel lblI = new JLabel("I");
-		lblI.setFont(new Font("Arial", Font.PLAIN, 12));
+		lblI.setFont(LABEL_FONT);
 		GridBagConstraints gbc_lblI = new GridBagConstraints();
 		gbc_lblI.insets = new Insets(0, 0, 0, 5);
 		gbc_lblI.gridx = 0;
 		gbc_lblI.gridy = 9;
 		add(lblI, gbc_lblI);
-	    // Initialize fieldStatus array to represent an empty field
-		fieldStatus = new int[9][9][2];
-		for (int i = 0; i < fieldStatus.length; i++) {
-			for (int j = 0; j < fieldStatus.length; j++) {
-				fieldStatus[i][j][0] = EMPTY;
-			}
-		}
 
 		// Initialize field buttons with appropriate properties and listeners
 		fieldButtons = new JButton[9][9];
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				fieldButtons[i][j] = new JButton("X");
-				fieldButtons[i][j].setFont(new Font("Arial", Font.PLAIN, 10));
+		for (int i = 0; i < fieldButtons.length; i++) {
+			for (int j = 0; j < fieldButtons.length; j++) {
+				fieldButtons[i][j] = new JButton();
+				fieldButtons[i][j].setFont(BUTTON_FONT);
 				fieldButtons[i][j].setName(i + " " + j);
-				fieldButtons[i][j].setEnabled(true);
 				fieldButtons[i][j].addActionListener(listener);
 
 				GridBagConstraints gbc_fieldbtn = new GridBagConstraints();
@@ -221,9 +206,24 @@ public class ShipField extends JPanel {
 			}
 		}
 
+		resetField();
+	}
+
+	public void resetField() {
+		// Initialize fieldStatus array to represent an empty field
+		fieldStatus = new int[9][9][3];
+		for (int i = 0; i < fieldStatus.length; i++) {
+			for (int j = 0; j < fieldStatus.length; j++) {
+				fieldStatus[i][j][0] = EMPTY;
+			}
+		}
+
+		this.showField(true); // redraw field
 		shipsList = new ArrayList[6];// Initialize the array to store ship coordinates
+		ships = 0; // clear placed ships
 		hits = 0;// Initialize the number of hits
 	}
+
 	// Additional method to set the enabled/disabled state of the panel
 	@Override
 	public void setEnabled(boolean enabled) {
@@ -233,195 +233,65 @@ public class ShipField extends JPanel {
 			}
 		}
 	}
-	 // Method to resize an image given its path and desired dimensions
-	private ImageIcon resizeImage(String imagePath, int width, int height) {
-        ImageIcon imageIcon = new ImageIcon(getClass().getResource(imagePath));
-        Image image = imageIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        return new ImageIcon(image);
+
+	// Method to place a ship on the field
+	public boolean placeShip(int r, int c, int size, int direction) {
+		try {
+			int dir = direction - 1 - direction % 2; // 0,1,2,3 -> -1,-1,1,1
+			int start = direction % 2 == 0 ? r : c; // start at x or y based on odd/even of direction
+			for (int i = start; i != start + size * dir; i += dir) { // loop from start to end of ship
+				if (i >= 9 || (direction % 2 == 0 ? fieldStatus[i][c][0] : fieldStatus[r][i][0]) != EMPTY)
+					return false;
+			}
+			ships++;
+
+			ArrayList<int[]> newShip = new ArrayList<int[]>();
+			for (int i = start; i != start + size * dir; i += dir) { // loop from start to end of ship
+				int[] point = { direction % 2 == 0 ? i : r, direction % 2 == 0 ? c : i }; // figure out point to update
+
+				fieldStatus[point[0]][point[1]][0] = SHIP; // update to be a floating ship
+				fieldStatus[point[0]][point[1]][1] = ships; // set ship # on field
+				fieldStatus[point[0]][point[1]][2] = direction % 2; // set ship rotation
+				newShip.add(point);
+				hits++;
+			}
+
+			shipsList[ships] = newShip;
+			return true;
+		} catch (IndexOutOfBoundsException iob) {
+			return false;
+		}
 	}
-	// Method to place a ship on the field 
-	public boolean placeShip(int y, int x, int size, int direction) {
-	    if (x < 0 || x >= 9 || y < 0 || y >= 9 || size <= 0) {
-	        return false;
-	    }
 
-	    try {
-	        if (direction == 2) { // down
-	            for (int i = 0; i < size; i++) {
-	                if (y + i >= 9 || fieldStatus[y + i][x][0] != EMPTY) {
-	                    return false;
-	                }
-	            }
-	            ships++;
-
-	            ArrayList<int[]> newShip = new ArrayList<int[]>();
-	            for (int i = 0; i < size; i++) {
-	                fieldStatus[y + i][x][0] = SHIP;
-	                fieldButtons[y + i][x].setIcon(resizeImage("/images/shipvert.png", 20, 20)); // Set the image
-
-	                fieldStatus[y + i][x][1] = ships;
-	                int[] point = { y + i, x };
-	                newShip.add(point);
-	                hits++;
-	            }
-
-	            shipsList[ships] = newShip;
-	        } else if (direction == 0) { // up
-	            for (int i = 0; i < size; i++) {
-	                if (y - i < 0 || fieldStatus[y - i][x][0] != EMPTY) {
-	                    return false;
-	                }
-	            }
-	            ships++;
-
-	            ArrayList<int[]> newShip = new ArrayList<int[]>();
-	            for (int i = 0; i < size; i++) {
-	                fieldStatus[y - i][x][0] = SHIP;
-	                fieldButtons[y - i][x].setIcon(resizeImage("/images/shipvert.png", 20, 20));
-	                fieldStatus[y - i][x][1] = ships;
-	                int[] point = { y - i, x };
-	                newShip.add(point);
-	                hits++;
-	            }
-
-	            shipsList[ships] = newShip;
-	        } else if (direction == 3) { // left
-	            for (int i = 0; i < size; i++) {
-	                if (x - i < 0 || fieldStatus[y][x - i][0] != EMPTY) {
-	                    return false;
-	                }
-	            }
-	            ships++;
-
-	            ArrayList<int[]> newShip = new ArrayList<int[]>();
-	            for (int i = 0; i < size; i++) {
-	                fieldStatus[y][x - i][0] = SHIP;
-	                
-	                fieldButtons[y][x - i].setIcon(resizeImage("/images/ship.png", 20, 20));
-	                fieldStatus[y][x - i][1] = ships;
-	                int[] point = { y, x - i };
-	                newShip.add(point);
-	                hits++;
-	            }
-
-	            shipsList[ships] = newShip;
-	        } else if (direction == 1) { // right
-	            for (int i = 0; i < size; i++) {
-	                if (x + i >= 9 || fieldStatus[y][x + i][0] != EMPTY) {
-	                    return false;
-	                }
-	            }
-	            ships++;
-
-	            ArrayList<int[]> newShip = new ArrayList<int[]>();
-	            for (int i = 0; i < size; i++) {
-	                fieldStatus[y][x + i][0] = SHIP; 
-	                fieldButtons[y][x + i].setIcon(resizeImage("/images/ship.png", 20, 20));
-
-	                fieldStatus[y][x + i][1] = ships;
-	                int[] point = { y, x + i };
-	                newShip.add(point);
-	                hits++;
-	            }
-
-	            shipsList[ships] = newShip;
-	        }
-	        return true;
-	    } catch (IndexOutOfBoundsException iob) {
-	        return false;
-	    }
-	}
-	//place ship method for CPU that does not reveal ships
-	public boolean placeShip2(int y, int x, int size, int direction) {
-	    if (x < 0 || x >= 9 || y < 0 || y >= 9 || size <= 0) {
-	        return false;
-	    }
-
-	    try {
-	        if (direction == 2) { // down
-	            for (int i = 0; i < size; i++) {
-	                if (y + i >= 9 || fieldStatus[y + i][x][0] != EMPTY) {
-	                    return false;
-	                }
-	            }
-	            ships++;
-
-	            ArrayList<int[]> newShip = new ArrayList<int[]>();
-	            for (int i = 0; i < size; i++) {
-	                fieldStatus[y + i][x][0] = SHIP;
-	                
-
-	                fieldStatus[y + i][x][1] = ships;
-	                int[] point = { y + i, x };
-	                newShip.add(point);
-	                hits++;
-	            }
-
-	            shipsList[ships] = newShip;
-	        } else if (direction == 0) { // up
-	            for (int i = 0; i < size; i++) {
-	                if (y - i < 0 || fieldStatus[y - i][x][0] != EMPTY) {
-	                    return false;
-	                }
-	            }
-	            ships++;
-
-	            ArrayList<int[]> newShip = new ArrayList<int[]>();
-	            for (int i = 0; i < size; i++) {
-	                fieldStatus[y - i][x][0] = SHIP;
-	                
-	                fieldStatus[y - i][x][1] = ships;
-	                int[] point = { y - i, x };
-	                newShip.add(point);
-	                hits++;
-	            }
-
-	            shipsList[ships] = newShip;
-	        } else if (direction == 3) { // left
-	            for (int i = 0; i < size; i++) {
-	                if (x - i < 0 || fieldStatus[y][x - i][0] != EMPTY) {
-	                    return false;
-	                }
-	            }
-	            ships++;
-
-	            ArrayList<int[]> newShip = new ArrayList<int[]>();
-	            for (int i = 0; i < size; i++) {
-	                fieldStatus[y][x - i][0] = SHIP;
-	                
-	                
-	                fieldStatus[y][x - i][1] = ships;
-	                int[] point = { y, x - i };
-	                newShip.add(point);
-	                hits++;
-	            }
-
-	            shipsList[ships] = newShip;
-	        } else if (direction == 1) { // right
-	            for (int i = 0; i < size; i++) {
-	                if (x + i >= 9 || fieldStatus[y][x + i][0] != EMPTY) {
-	                    return false;
-	                }
-	            }
-	            ships++;
-
-	            ArrayList<int[]> newShip = new ArrayList<int[]>();
-	            for (int i = 0; i < size; i++) {
-	                fieldStatus[y][x + i][0] = SHIP;
-	                
-
-	                fieldStatus[y][x + i][1] = ships;
-	                int[] point = { y, x + i };
-	                newShip.add(point);
-	                hits++;
-	            }
-
-	            shipsList[ships] = newShip;
-	        }
-	        return true;
-	    } catch (IndexOutOfBoundsException iob) {
-	        return false;
-	    }
+	// methods displays the field and hides ships/sinkings if hidden
+	public void showField(boolean hidden) {
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 9; j++) {
+				String image = "";
+				switch (fieldStatus[i][j][0]) {
+				case SHIP:
+					if (!hidden) {
+						image = "ship" + (fieldStatus[i][j][2] == 0 ? "vert" : "");
+					} // else: draw empty
+				case EMPTY:
+					// image = "water";
+					break;
+				case SUNK:
+					if (!hidden) {
+						image = "sunk";
+						break;
+					} // else: draw hit
+				case HIT:
+					image = "hit";
+					break;
+				}
+				if (image != "") {
+					fieldButtons[i][j].setText("");
+					fieldButtons[i][j].setIcon(resizeImage("/images/" + image + ".png", 20, 20));
+				} else
+					fieldButtons[i][j].setText("X");
+			}
+		}
 	}
 
 	// Method to attempt hitting a cell on the opponent's field
@@ -432,30 +302,36 @@ public class ShipField extends JPanel {
 
 		if (fieldStatus[row][col][0] == SHIP) {
 			fieldStatus[row][col][0] = HIT;
-			fieldButtons[row][col].setIcon(resizeImage("/images/hit.png", 20, 20));
-			
 			hits--;
-			if(hits == 0) { //win state
+			if (hits == 0) { // win state
 				return 2;
 			}
 
 			int shipHit = fieldStatus[row][col][1];
 
 			boolean sunk = true;
-			for(int[] point : shipsList[shipHit]) {
+			for (int[] point : shipsList[shipHit]) {
 				sunk = fieldStatus[point[0]][point[1]][0] == HIT;
-				if(!sunk) break;
-			}	
+				if (!sunk)
+					break;
+			}
 			if (sunk) { // ship sunk
-	            for (int[] point : shipsList[shipHit]) {
-	                fieldStatus[point[0]][point[1]][0] = SUNK;
-	                fieldButtons[point[0]][point[1]].setIcon(resizeImage("/images/sunk.png", 20, 20));
-	            }
-	            return 3; // 3 indicates that a ship is sunk
-	        }
+				for (int[] point : shipsList[shipHit]) {
+					fieldStatus[point[0]][point[1]][0] = SUNK;
+				}
+				return 3; // 3 indicates that a ship is sunk
+			}
 
-	        return 1; // 1 indicates a regular hit
-	    }
+			return 1; // 1 indicates a regular hit
+		}
 
-	    return 0; // 0 indicates a miss
-	}}
+		return 0; // 0 indicates a miss
+	}
+
+	// Method to resize an image given its path and desired dimensions
+	private ImageIcon resizeImage(String imagePath, int width, int height) {
+		ImageIcon imageIcon = new ImageIcon(getClass().getResource(imagePath));
+		Image image = imageIcon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+		return new ImageIcon(image);
+	}
+}

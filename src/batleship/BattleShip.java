@@ -170,16 +170,20 @@ public class BattleShip extends JFrame {
 		} else {
 			doTurn(field, clickLoc[0], clickLoc[1]);
 
-			turns++; // inc turns counter for player
-			hud.setTurn(turns);
-
 			if (!turn && cpuPlayer && setup != 3) { // check if CPU is playing and the game is not over
 				// cpu play
 				int[] cpuTarget = cpu.getNextTurn();
 				int hitStatus = doTurn(1, cpuTarget[0], cpuTarget[1]);
 				cpu.updateField(cpuTarget[0], cpuTarget[1], hitStatus);
 			}
+
+			if (turn)
+				turns++; // inc at the end of p2 turn
+			hud.setTurn(turns);
 		}
+
+		fields[0].showField(turn);
+		fields[1].showField(!turn);
 	}
 
 	private void setupShips(int field, int r, int c) {
@@ -191,9 +195,9 @@ public class BattleShip extends JFrame {
 			int dir = -1;
 			if (r == point[0]) { // same row
 				if (c > point[1])
-					dir = 1; // right
+					dir = 3; // right
 				else
-					dir = 3; // left
+					dir = 1; // left
 			} else if (c == point[1]) {// same column
 				if (r > point[0])
 					dir = 2; // down
