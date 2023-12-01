@@ -1,5 +1,6 @@
 package batleship;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Cpu {
@@ -12,6 +13,8 @@ public class Cpu {
 	int[] point; // remember last hit point
 	int rotation; // remeber last rotation directon
 	int[] rotPoint;
+
+	ArrayList<Integer> rotPool; // pool of rotations
 	/*
 	 * keep track of what we're doing 0 - random 1 - rotating 2 - locked on
 	 */
@@ -22,7 +25,7 @@ public class Cpu {
 
 		// setup AI vars
 		point = new int[2];
-		rotation = 0;
+		rotPool = new ArrayList<>();
 		rotPoint = new int[2];
 		state = 0;
 
@@ -49,11 +52,7 @@ public class Cpu {
 	public int[] getNextTurn() {
 		switch (state) {
 		case 1: // rotating
-			if (rotation > 3) { // can't rotate past 3, reset state and do a random hit
-				rotation = 0;
-				resetState();
-			} else
-				calcNextHit(rotPoint);
+			calcNextHit(rotPoint);
 			break;
 		case 2: // locked on
 			calcNextHit(point);
@@ -71,12 +70,17 @@ public class Cpu {
 
 		if (state == 0 && hitStatus != 0) {
 			state = 1; // if we hit in state 0 rand, move to state 1 rot
-			rotation = 0; // reset rotation
+			refillRotationPool(); // refill pool and pop a direction out
+			rotation = rotPool.remove(0);
 			rotPoint[0] = point[0]; // save our rotating point
 			rotPoint[1] = point[1];
 		} else if (state == 1)
 			if (hitStatus == 0) {
-				rotation++; // no hit, rotate to next place
+				// no hit, rotate to next place if rotpool is not empty
+				if (!rotPool.isEmpty())
+					rotation = rotPool.remove(0);
+				else
+					state = 0;
 			} else
 				state = 2; // if we hit in state 1 rot, move to state 2 loc
 		else if (state == 2 && hitStatus == 0)
@@ -86,26 +90,14 @@ public class Cpu {
 	// reads rotation and point given and saves next place in the point instance
 	// var, checks for out of bounds, does randhom hit of reset state if needed
 	private void calcNextHit(int[] p) {
-		int[] tempPoint = new int[2];
-
-		tempPoint[0] = p[0];
-		tempPoint[1] = p[1];
-
-		if (rotation % 2 == 0) {// even
-			tempPoint[1] += rotation - 1;
-			if (checkBounds(tempPoint[1])) {
-				point[0] = p[0]; // reset point to input point
-				point[1] = tempPoint[1];
-			} else
-				resetState();
-		} else { // odd
-			tempPoint[0] += rotation - 2;
-			if (checkBounds(tempPoint[0])) {
-				point[0] = tempPoint[0];
-				point[1] = p[1];
-			} else
-				resetState();
-		}
+		int dir = rotation % 2; // even:true odd:false
+		// calc new location in the right axis and direction
+		int newPlace = (dir == 0 ? p[1] : p[0]) + rotation - 1 - dir; 
+		if (checkBounds(newPlace)) { // check bounds and set next point, else reset state
+			point[0] = (dir == 0 ? p[0] : newPlace);
+			point[1] = (dir == 0 ? newPlace : p[1]);
+		} else
+			resetState();
 	}
 
 	private boolean checkBounds(int n) {
@@ -113,12 +105,23 @@ public class Cpu {
 	}
 
 	private void resetState() {
-		if (state == 2 && rotation < 3) { // if we can continue rotating
-			rotation++; // rotational "soft" reset, rotPoint should still be saved
+		if (state == 2 && !rotPool.isEmpty()) { // if we can continue rotating
+			rotation = rotPool.remove(0); // rotational "soft" reset, rotPoint should still be saved
 			state = 1;
 		} else { // full reset
 			state = 0;
 			randomHit();
+		}
+	}
+
+	private void refillRotationPool() {
+		while (!rotPool.isEmpty())
+			rotPool.remove(0); // empty rotationPool
+
+		while (rotPool.size() < 4) {
+			int num = (int) (Math.random() * 4);
+			if (!rotPool.contains(num))
+				rotPool.add(num);
 		}
 	}
 
