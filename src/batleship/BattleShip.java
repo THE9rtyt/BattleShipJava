@@ -67,6 +67,17 @@ public class BattleShip extends JFrame {
 
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
+		
+		JMenu mnGame = new JMenu("Game");
+		menuBar.add(mnGame);
+		
+		JMenuItem mntmReset = new JMenuItem("New Game/Reset");
+		mntmReset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				clicked_Reset();
+			}
+		});
+		mnGame.add(mntmReset);
 
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
@@ -115,7 +126,6 @@ public class BattleShip extends JFrame {
 		};
 
 		fields[0] = new ShipField("CPU", field0Listener);
-		fields[0].setEnabled(false);
 		GridBagConstraints gbc_field2 = new GridBagConstraints();
 		gbc_field2.insets = new Insets(0, 0, 0, 5);
 		gbc_field2.fill = GridBagConstraints.BOTH;
@@ -135,6 +145,14 @@ public class BattleShip extends JFrame {
 		init();
 	}
 
+	protected void clicked_Reset() {
+		//reset both fields, clering them, ready for setup again
+		fields[0].resetField();
+		fields[1].resetField();
+		//recall init, which will set the game back into setup mode and reset any variables that need to be set for game startup
+		init();
+	}
+
 	// sets game logic flags for new game and begins setup
 	private void init() {
 		if (cpuPlayer) {
@@ -151,7 +169,9 @@ public class BattleShip extends JFrame {
 		// put ships into otu ship "stack"
 		ships = new ArrayList<Integer>(SHIPS_ALL);
 		// enable filed 1 for P1 to place ships
+		fields[0].setEnabled(false);
 		fields[1].setEnabled(true);
+
 		point = new int[] { -1, -1 }; // begin point as invalid value for fresh ship placement
 		hud.println("select first point for ship size: " + ships.get(0));
 	}
