@@ -30,6 +30,7 @@ public class ShipField extends JPanel {
 	// fieldStatus[x][y][0] represents empty/ship/hit/sunk
 	// fieldStatus[x][y][1] represents the ship number
 	// fieldStatus[x][y][2] vert/horz ship display
+	// fieldStatus[x][y][3] touched(1) or not(0)
 
 	private JButton[][] fieldButtons; // Buttons representing each cell on the field
 
@@ -67,7 +68,7 @@ public class ShipField extends JPanel {
 			lblLets[i].setSize(SQUARE_SIZE, SQUARE_SIZE);
 			//create constraints
 			GridBagConstraints gbc_lbl = new GridBagConstraints();
-			gbc_lbl.insets = new Insets(5, 5, 0, 0);
+			gbc_lbl.insets = new Insets(0, 0, 0, 0);
 			//set location and add
 			gbc_lbl.gridx = i + 1;
 			gbc_lbl.gridy = 0;
@@ -86,7 +87,6 @@ public class ShipField extends JPanel {
 				fieldButtons[i][j].setFont(BUTTON_FONT);
 				fieldButtons[i][j].setName(i + " " + j);
 				fieldButtons[i][j].addActionListener(listener);
-				fieldButtons[i][j].setBorder(BorderFactory.createLineBorder(Color.lightGray, 5, true));
 
 				GridBagConstraints gbc_fieldbtn = new GridBagConstraints();
 				gbc_fieldbtn.gridy = i + 1;
@@ -108,10 +108,11 @@ public class ShipField extends JPanel {
 
 	public void resetField() {
 		// Initialize fieldStatus array to represent an empty field
-		fieldStatus = new int[9][9][3];
+		fieldStatus = new int[9][9][4];
 		for (int i = 0; i < fieldStatus.length; i++) {
 			for (int j = 0; j < fieldStatus.length; j++) {
 				fieldStatus[i][j][0] = EMPTY;
+				fieldStatus[i][j][3] = 0;	
 			}
 		}
 
@@ -185,6 +186,12 @@ public class ShipField extends JPanel {
 				}
 				fieldButtons[i][j].setIcon(image);
 				fieldButtons[i][j].setDisabledIcon(image);
+
+				//red if the point has been touched, else enabled/disabled grey
+				Color color = fieldStatus[i][j][3]== 1 ? Color.decode(Integer.toString(0xcc1111)) : 
+						fieldButtons[i][j].isEnabled() ? Color.gray : Color.lightGray;
+				fieldButtons[i][j].setBackground(color);
+				fieldButtons[i][j].setBorder(BorderFactory.createLineBorder(color, 5, true));
 			}
 		}
 	}
@@ -194,6 +201,7 @@ public class ShipField extends JPanel {
 		if (row < 0 || row >= 9 || col < 0 || col >= 9) {
 			return 0;
 		}
+		fieldStatus[row][col][3] = 1; //touch
 
 		if (fieldStatus[row][col][0] == SHIP) {
 			fieldStatus[row][col][0] = HIT;

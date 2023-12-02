@@ -171,6 +171,7 @@ public class BattleShip extends JFrame {
 		// enable filed 1 for P1 to place ships
 		fields[0].setEnabled(false);
 		fields[1].setEnabled(true);
+		fields[0].showField(true); //show disabled enemy field
 
 		point = new int[] { -1, -1 }; // begin point as invalid value for fresh ship placement
 		hud.println("select first point for ship size: " + ships.get(0));
